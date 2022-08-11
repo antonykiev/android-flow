@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,6 +21,9 @@ class MainViewModel: ViewModel() {
 
     private val _sharedFlow = MutableSharedFlow<String>()
     val sharedFlow = _sharedFlow.asSharedFlow()
+
+    private val _channel = Channel<String>()
+    val channel = _channel.receiveAsFlow()
 
     fun triggerLiveData() {
         _liveData.postValue("LiveData")
@@ -41,6 +45,12 @@ class MainViewModel: ViewModel() {
         repeat(100) {
             emit(it)
             delay(1000L)
+        }
+    }
+
+    fun triggerChanel() {
+        viewModelScope.launch {
+            _channel.send("Channel")
         }
     }
 

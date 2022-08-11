@@ -48,6 +48,10 @@ class MainActivity() : AppCompatActivity(R.layout.activity_main) {
         activityMainBinding.btnSharedFlow.setOnClickListener {
             mainViewModel.triggerSharedFlow()
         }
+
+        activityMainBinding.btnChannel.setOnClickListener {
+            mainViewModel.triggerChanel()
+        }
     }
 
 
@@ -75,6 +79,17 @@ class MainActivity() : AppCompatActivity(R.layout.activity_main) {
         lifecycleScope.launchWhenStarted {
             mainViewModel.sharedFlow.collectLatest {
                 activityMainBinding.tvSharedFlow.text = it
+                Snackbar.make(
+                    activityMainBinding.root,
+                    it,
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            mainViewModel.channel.collectLatest {
+                activityMainBinding.tvChannel.text = it
                 Snackbar.make(
                     activityMainBinding.root,
                     it,
