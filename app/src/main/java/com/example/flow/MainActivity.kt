@@ -3,11 +3,14 @@ package com.example.flow
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.flow.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainActivity() : AppCompatActivity(R.layout.activity_main) {
@@ -76,16 +79,21 @@ class MainActivity() : AppCompatActivity(R.layout.activity_main) {
             }
         }
 
-        lifecycleScope.launchWhenStarted {
-            mainViewModel.sharedFlow.collectLatest {
-                activityMainBinding.tvSharedFlow.text = it
-                Snackbar.make(
-                    activityMainBinding.root,
-                    it,
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
-        }
+
+            mainViewModel.sharedFlow
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .onEach {
+                    activityMainBinding.tvSharedFlow.text = it
+                    Snackbar.make(
+                        activityMainBinding.root,
+                        it,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+                .flowOn(Dispatchers.Main)
+                .launchIn(lifecycleScope)
+
+
 
         lifecycleScope.launchWhenStarted {
             mainViewModel.channel.collectLatest {
@@ -97,6 +105,6 @@ class MainActivity() : AppCompatActivity(R.layout.activity_main) {
                 ).show()
             }
         }
-
     }
+
 }
